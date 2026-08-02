@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code × AWS — Ship 5 real cloud services this weekend</title>
+<meta name="description" content="A $30 weekend course. Install one thing — Claude builds the rest. Five deployed services, a $0 bill, and the skill of directing AI through real infrastructure.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF7F0;
+    --paper-dim: #F1EBDF;
+    --ink: #1B1712;
+    --ink-soft: #5C5347;
+    --rule: #D9CFBE;
+    --accent: #D9480F;
+    --accent-soft: #F4E3D7;
+    --term-bg: #171310;
+    --term-text: #E8E0D2;
+    --term-green: #9BC995;
+    --term-dim: #857B6C;
+    --serif: "Fraunces", Georgia, serif;
+    --body: Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: var(--paper); }
+
+  .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.4rem 0; border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.04em;
+  }
+  .topbar .price { color: var(--accent); font-weight: 500; }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 4.5rem 0 3.5rem; }
+  .hero .kicker {
+    font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 1.4rem;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 640;
+    font-size: clamp(2.6rem, 6.5vw, 4.6rem);
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+    max-width: 15ch;
+  }
+  h1 em { font-style: italic; font-weight: 420; color: var(--accent); }
+  .hero .sub {
+    max-width: 44ch; margin-top: 1.6rem; font-size: 1.15rem; color: var(--ink-soft);
+  }
+  .cta-row { margin-top: 2.2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; font-family: var(--mono); font-size: 0.95rem;
+    padding: 0.85rem 1.6rem; border-radius: 4px; text-decoration: none;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .btn-primary {
+    background: var(--ink); color: var(--paper);
+    box-shadow: 4px 4px 0 var(--accent);
+  }
+  .btn-primary:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--accent); }
+  .btn-ghost { color: var(--ink); border: 1px solid var(--rule); }
+  .btn-ghost:hover { border-color: var(--ink); }
+  .cta-note { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); }
+
+  /* staggered reveal */
+  .hero > * { opacity: 0; transform: translateY(14px); animation: rise 0.7s cubic-bezier(.2,.7,.3,1) forwards; }
+  .hero > *:nth-child(1) { animation-delay: 0.05s; }
+  .hero > *:nth-child(2) { animation-delay: 0.15s; }
+  .hero > *:nth-child(3) { animation-delay: 0.28s; }
+  .hero > *:nth-child(4) { animation-delay: 0.42s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  /* ---------- terminal ---------- */
+  .terminal {
+    background: var(--term-bg); color: var(--term-text);
+    border-radius: 10px; padding: 1.4rem 1.6rem 1.6rem;
+    font-family: var(--mono); font-size: 0.86rem; line-height: 1.75;
+    box-shadow: 0 24px 60px -24px rgba(27,23,18,0.45);
+    margin: 3.2rem 0 0; overflow-x: auto;
+    opacity: 0; transform: translateY(14px); animation: rise 0.7s 0.55s cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  .terminal .dots { display: flex; gap: 6px; margin-bottom: 1rem; }
+  .terminal .dots span { width: 10px; height: 10px; border-radius: 50%; background: #3A332B; }
+  .t-prompt { color: var(--term-dim); }
+  .t-user { color: var(--term-text); }
+  .t-ok { color: var(--term-green); }
+  .t-dim { color: var(--term-dim); font-style: italic; }
+  .t-accent { color: #E8A87C; }
+  .terminal .line { display: block; }
+  .type-in .line { opacity: 0; animation: appear 0.01s forwards; }
+  .type-in .line:nth-child(1) { animation-delay: 1.0s; }
+  .type-in .line:nth-child(2) { animation-delay: 1.9s; }
+  .type-in .line:nth-child(3) { animation-delay: 2.5s; }
+  .type-in .line:nth-child(4) { animation-delay: 3.1s; }
+  .type-in .line:nth-child(5) { animation-delay: 3.7s; }
+  .type-in .line:nth-child(6) { animation-delay: 4.4s; }
+  .type-in .line:nth-child(7) { animation-delay: 5.0s; }
+  .type-in .line:nth-child(8) { animation-delay: 5.4s; }
+  .type-in .line:nth-child(9) { animation-delay: 5.8s; }
+  @keyframes appear { to { opacity: 1; } }
+
+  /* ---------- editorial stats ---------- */
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    margin: 4.5rem 0;
+  }
+  .stat { padding: 2rem 1.4rem; border-left: 1px solid var(--rule); }
+  .stat:first-child { border-left: none; }
+  .stat b {
+    display: block; font-family: var(--serif); font-weight: 560;
+    font-size: 2.6rem; line-height: 1; letter-spacing: -0.02em;
+  }
+  .stat b .unit { font-size: 1.2rem; color: var(--accent); font-style: italic; }
+  .stat span { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* ---------- sections ---------- */
+  section { padding: 3.2rem 0; }
+  .sec-label {
+    font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+  }
+  h2 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+    line-height: 1.15; letter-spacing: -0.01em; max-width: 24ch; margin-bottom: 1.2rem;
+  }
+  h2 em { font-style: italic; font-weight: 420; }
+  .prose { max-width: 58ch; color: var(--ink-soft); }
+  .prose strong { color: var(--ink); }
+
+  /* curriculum */
+  .curriculum { list-style: none; margin-top: 2.4rem; border-top: 1px solid var(--rule); }
+  .curriculum li {
+    display: grid; grid-template-columns: 3.4rem 1fr auto; gap: 1.2rem;
+    align-items: baseline; padding: 1.35rem 0; border-bottom: 1px solid var(--rule);
+  }
+  .curriculum .num {
+    font-family: var(--serif); font-style: italic; font-weight: 420;
+    font-size: 1.7rem; color: var(--accent);
+  }
+  .curriculum h3 { font-family: var(--serif); font-weight: 600; font-size: 1.18rem; }
+  .curriculum p { color: var(--ink-soft); font-size: 0.98rem; margin-top: 0.15rem; }
+  .curriculum .time { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); white-space: nowrap; }
+  .curriculum li:hover .num { transform: translateX(4px); }
+  .curriculum .num { transition: transform 0.15s ease; display: inline-block; }
+
+  /* pull quote haiku */
+  .haiku {
+    margin: 3.4rem auto; max-width: 30rem; text-align: center;
+    font-family: var(--serif); font-style: italic; font-size: 1.5rem; line-height: 1.6;
+  }
+  .haiku footer { font-family: var(--mono); font-style: normal; font-size: 0.75rem; color: var(--ink-soft); margin-top: 1rem; }
+  .haiku footer b { color: var(--accent); font-weight: 500; }
+
+  /* honesty band */
+  .band {
+    background: var(--ink); color: var(--paper); border-radius: 12px;
+    padding: 3rem clamp(1.5rem, 5vw, 4rem); margin: 1.5rem 0;
+  }
+  .band h2 { color: var(--paper); }
+  .band .prose { color: #B9AE9D; }
+  .band .prose strong { color: var(--paper); }
+  .jobs { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1.4rem; margin-top: 2rem; }
+  .jobs div { border-top: 2px solid var(--accent); padding-top: 0.8rem; }
+  .jobs b { font-family: var(--mono); font-size: 0.82rem; display: block; margin-bottom: 0.3rem; }
+  .jobs span { font-size: 0.9rem; color: #B9AE9D; }
+
+  /* pricing */
+  .pricing { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .price-card {
+    background: var(--paper-dim); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 2.6rem 2.4rem; position: relative;
+  }
+  .price-card .amount {
+    font-family: var(--serif); font-weight: 640; font-size: 4.4rem; line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .price-card .amount sup { font-size: 1.8rem; font-weight: 420; font-style: italic; color: var(--accent); }
+  .price-card .once { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.4rem; }
+  .price-card ul { list-style: none; margin: 1.8rem 0 2.2rem; }
+  .price-card li { padding: 0.5rem 0 0.5rem 1.7rem; position: relative; font-size: 0.98rem; }
+  .price-card li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); font-family: var(--mono); }
+  .price-card .btn { width: 100%; text-align: center; }
+  .guarantee { font-family: var(--mono); font-size: 0.75rem; color: var(--ink-soft); text-align: center; margin-top: 1rem; }
+
+  /* FAQ */
+  .faq details { border-bottom: 1px solid var(--rule); }
+  .faq details:first-of-type { border-top: 1px solid var(--rule); }
+  .faq summary {
+    cursor: pointer; list-style: none; padding: 1.2rem 0;
+    font-family: var(--serif); font-weight: 600; font-size: 1.12rem;
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-family: var(--mono); color: var(--accent); font-size: 1.3rem; transition: transform 0.2s ease; }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq .a { padding: 0 0 1.4rem; max-width: 60ch; color: var(--ink-soft); }
+
+  footer.site {
+    border-top: 1px solid var(--rule); margin-top: 4rem; padding: 2rem 0 3rem;
+    font-family: var(--mono); font-size: 0.75rem; color: var(--ink-soft);
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+  footer.site a { color: inherit; }
+
+  /* scroll reveal */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.2,.7,.3,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 760px) {
+    .pricing { grid-template-columns: 1fr; }
+    .curriculum li { grid-template-columns: 2.4rem 1fr; }
+    .curriculum .time { grid-column: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .hero > *, .terminal, .type-in .line, .reveal { opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <span>claude code × aws</span>
+    <span class="price">a weekend · $30</span>
+  </div>
+
+  <header class="hero">
+    <p class="kicker">A course you paste, not memorize</p>
+    <h1>Install one thing. <em>Claude builds the rest.</em></h1>
+    <p class="sub">Ship five real cloud services this weekend — a live website, a public API, a bot that emails you, an AI service — by learning the one skill that's replacing command memorization: <strong>directing.</strong></p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#pricing" id="hero-cta">Get the course — $30</a>
+      <span class="cta-note">2.5 hrs of building · ~$0 cloud bill · beginner-safe</span>
+    </div>
+
+    <div class="terminal" aria-label="Example of the course experience">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="type-in">
+        <span class="line"><span class="t-prompt">you ›</span> <span class="t-user">Build me a serverless link shortener. Scope the IAM role to exactly what it needs.</span></span>
+        <span class="line"><span class="t-dim">claude is working…</span></span>
+        <span class="line"><span class="t-ok">✓</span> DynamoDB table <span class="t-accent">shortlinks</span> — ACTIVE</span>
+        <span class="line"><span class="t-ok">✓</span> Lambda deployed — one Python file, 90 lines</span>
+        <span class="line"><span class="t-ok">✓</span> API live: <span class="t-accent">https://…execute-api.amazonaws.com</span></span>
+        <span class="line"><span class="t-prompt">you ›</span> <span class="t-user">Now make it write me a haiku about shipping this.</span></span>
+        <span class="line">&nbsp;&nbsp;<span class="t-dim">Code pushed to the sky /</span></span>
+        <span class="line">&nbsp;&nbsp;<span class="t-dim">Watching logs in real time now /</span></span>
+        <span class="line">&nbsp;&nbsp;<span class="t-dim">Dreams run on the web</span> &nbsp;<span class="t-accent">— cost: $0.000167</span></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats reveal">
+    <div class="stat"><b>5</b><span>services deployed</span></div>
+    <div class="stat"><b>$0<span class="unit">.00</span></b><span>our final aws bill</span></div>
+    <div class="stat"><b>1</b><span>thing you install</span></div>
+    <div class="stat"><b>4</b><span>jobs left for humans</span></div>
+  </div>
+
+  <section class="reveal" id="curriculum">
+    <p class="sec-label">The weekend</p>
+    <h2>Six chapters. Every one <em>run for real</em> before it was written.</h2>
+    <p class="prose">No chapter in this course was written from documentation. We ran every command, hit every error, and wrote from the transcript — so the troubleshooting sections contain only failures that actually happened, with the fixes that actually worked.</p>
+    <ol class="curriculum">
+      <li><span class="num">0</span><div><h3>Setup, the painless way</h3><p>One install. Claude configures the rest — including the $5 budget alarm that makes the whole course safe.</p></div><span class="time">30 min</span></li>
+      <li><span class="num">1</span><div><h3>A live website</h3><p>S3 + CloudFront + GitHub Actions. Push to GitHub, site redeploys itself. No stored keys — OIDC.</p></div><span class="time">30 min</span></li>
+      <li><span class="num">2</span><div><h3>A public API with a database</h3><p>A link shortener on Lambda + DynamoDB. Anyone on the internet can call it. Costs nothing at rest.</p></div><span class="time">20 min</span></li>
+      <li><span class="num">3</span><div><h3>A bot that works while you sleep</h3><p>Every morning at 8:00, an email with your link stats. EventBridge + SES. Timezone-aware, DST-proof.</p></div><span class="time">20 min</span></li>
+      <li><span class="num">4</span><div><h3>An AI service — with zero API keys</h3><p>Haiku-as-a-service on Amazon Bedrock. IAM is the credential. Every response reports its own cost.</p></div><span class="time">25 min</span></li>
+      <li><span class="num">5</span><div><h3>Capstone, audit, vanish</h3><p>Wire it into one app. Then the skill nobody teaches: tear it all down to a verified-empty account.</p></div><span class="time">30 min</span></li>
+    </ol>
+  </section>
+
+  <blockquote class="haiku reveal">
+    Five dollars sits still —<br>
+    never touched through all the days.<br>
+    Dreams unfulfilled wait.
+    <footer>written by the course's own AI service, about its own unused budget · generation cost <b>$0.000157</b></footer>
+  </blockquote>
+
+  <section class="reveal">
+    <div class="band">
+      <p class="sec-label">The honest part</p>
+      <h2>Claude runs every command. You keep four jobs.</h2>
+      <p class="prose">Courses that promise "fully automated" are lying about the last mile. Here is ours, exactly: every command in this course is run by Claude at your direction. Four things remain yours — because they <strong>should</strong> be.</p>
+      <div class="jobs">
+        <div><b>signing in</b><span>to websites — AWS, GitHub. Your identity.</span></div>
+        <div><b>clicking verify</b><span>on emails proving you own your address.</span></div>
+        <div><b>entering payment</b><span>details at AWS signup. Your card.</span></div>
+        <div><b>approving logins</b><span>in the browser. Your consent.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal" id="pricing">
+    <div class="pricing">
+      <div>
+        <p class="sec-label">One price, yours forever</p>
+        <h2>Thirty dollars. About what the cloud <em>won't</em> cost you.</h2>
+        <p class="prose">You get the six chapters, the battle-tested prompts with the undocumented quirks pre-solved, two packaged Claude Code skills — a budget guardian and a GitHub profile curator — and every future update, free. Everything you <strong>build</strong> while following the course is yours, including commercially.</p>
+      </div>
+      <div class="price-card">
+        <div class="amount"><sup>$</sup>30</div>
+        <p class="once">once · lifetime access · free updates</p>
+        <ul>
+          <li>6 dry-run-validated chapters</li>
+          <li>Starter prompts with the traps pre-sprung</li>
+          <li><code>aws-budget-guard</code> + <code>github-job-fit</code> skills</li>
+          <li>5 portfolio repos on your GitHub by Sunday</li>
+          <li>The teardown runbook (leave no trace)</li>
+        </ul>
+        <a class="btn btn-primary" id="buy" href="REPLACE_ME_CHECKOUT_URL">Start this weekend →</a>
+        <p class="guarantee">14-day no-questions refund</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq reveal">
+    <p class="sec-label">Fair questions</p>
+    <h2>Before you ask</h2>
+    <details>
+      <summary>Do I need to know how to code?</summary>
+      <p class="a">No. You need to read English and paste prompts. Every concept is explained in plain language the moment it matters — and understanding <em>why</em> the pieces fit is the actual curriculum. Typing was never the valuable part.</p>
+    </details>
+    <details>
+      <summary>What does it cost beyond the $30?</summary>
+      <p class="a">A Claude Pro subscription (which powers Claude Code) and a free-tier AWS account. Expected AWS spend for the whole course: $0–2. Our own complete run billed $0.00 — and chapter 0's first real act is arming a $5 budget alarm so a surprise bill is structurally impossible to miss.</p>
+    </details>
+    <details>
+      <summary>What if something breaks?</summary>
+      <p class="a">One rule, every chapter: paste the error into Claude Code and say "fix this." That's not a cop-out — debugging by directing is the course. And because every chapter was dry-run for real, the troubleshooting sections already cover the failures we hit ourselves, including the weird ones.</p>
+    </details>
+    <details>
+      <summary>What do I actually have when I'm done?</summary>
+      <p class="a">Five deployed-and-documented repos on your GitHub, working knowledge of the eight most-used AWS services, a verified-clean cloud account, and a workflow — direct, checkpoint, debug — that transfers to every provider and every future tool.</p>
+    </details>
+    <details>
+      <summary>Why is there a teardown chapter? I paid to build things!</summary>
+      <p class="a">Because knowing how to leave a cloud account is what separates people who've done tutorials from people who've run infrastructure. Your GitHub keeps the proof forever; your AWS account returns to zero; and everything rebuilds from the chapters in about an hour whenever you want it back.</p>
+    </details>
+  </section>
+
+  <footer class="site">
+    <span>© 2026 Justin Laws · <a href="#pricing">$30, once</a></span>
+    <span>this page, like the course, was built by directing Claude Code</span>
+  </footer>
+</div>
+
+<script>
+  // scroll reveal
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+  // checkout placeholder guard
+  const buy = document.getElementById("buy");
+  if (buy.getAttribute("href").includes("REPLACE_ME")) {
+    buy.addEventListener("click", (e) => {
+      e.preventDefault();
+      buy.textContent = "Checkout opens shortly — check back soon";
+      setTimeout(() => (buy.textContent = "Start this weekend →"), 2600);
+    });
+  }
+</script>
+</body>
+</html>
